@@ -10,6 +10,16 @@ class User(UserMixin, db.Model):
         db.Integer,
         primary_key=True
     )
+    
+    bio = db.Column(
+        db.Text,
+        default=""
+    )
+    
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
 
     username = db.Column(
         db.String(80),

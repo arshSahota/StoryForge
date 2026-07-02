@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}
+Generate Story
+{% endblock %}
+
+{% block content %}
+
+<h1>Generate a Story ✨</h1>
+
+<p>
+    Enter a story idea and StoryForge will create a draft for you.
+</p>
+
+<form method="POST">
+
+    <input
+        type="text"
+        name="prompt"
+        placeholder="Example: A dragon discovers modern-day Vancouver"
+        required
+    >
+
+    <br><br>
+
+    <select name="genre" required>
+        <option value="">Choose a genre</option>
+        <option value="Fantasy">Fantasy</option>
+        <option value="Sci-Fi">Sci-Fi</option>
+        <option value="Mystery">Mystery</option>
+        <option value="Adventure">Adventure</option>
+        <option value="Horror">Horror</option>
+        <option value="Romance">Romance</option>
+    </select>
+
+    <br><br>
+
+    <button type="submit">
+        Generate Story
+    </button>
+
+</form>
+
+{% if generated_story %}
+
+    <hr>
+
+    <h2>{{ generated_title }}</h2>
+
+    <p>
+        <strong>Genre:</strong> {{ generated_genre }}
+    </p>
+
+    <div class="generated-story-box">
+
+        <p>
+            {{ generated_story }}
+        </p>
+
+    </div>
+
+    <form method="POST" action="/save-generated-story">
+
+        <input
+            type="hidden"
+            name="title"
+            value="{{ generated_title }}"
+        >
+
+        <input
+            type="hidden"
+            name="content"
+            value="{{ generated_story }}"
+        >
+
+        <button type="submit">
+            Save This Story
+        </button>
+
+    </form>
+
+{% endif %}
+
+{% endblock %}

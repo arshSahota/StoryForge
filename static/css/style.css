@@ -65,3 +65,103 @@ nav a {
 
     border-radius: 10px;
 }
+
+.flash {
+
+    background: #16a34a;
+
+    color: white;
+
+    padding: 10px;
+
+    margin: 10px;
+
+    border-radius: 8px;
+}
+
+textarea {
+
+    background: #1e293b;
+
+    color: white;
+
+    padding: 10px;
+}
+
+input {
+
+    padding: 10px;
+}
+.navbar {
+    background: #111827;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 15px 30px;
+}
+
+.navbar a {
+    text-decoration: none;
+
+    color: white;
+
+    margin-left: 20px;
+}
+
+.logo a {
+    font-size: 1.3rem;
+
+    font-weight: bold;
+}
+
+.container {
+    width: 80%;
+
+    margin: auto;
+
+    padding-top: 30px;
+}
+
+.flash-message {
+
+    width: 80%;
+
+    margin: 20px auto;
+
+    padding: 12px;
+
+    border-radius: 8px;
+
+    background: #16a34a;
+
+    color: white;
+
+    text-align: center;
+}
+.generated-story-box {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px auto;
+    width: 80%;
+    line-height: 1.6;
+    text-align: left;
+    white-space: pre-line;
+}
+
+select {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+}
+
+input {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    width: 300px;
+}
