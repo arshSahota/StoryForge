@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block content %}
+
+<h1>
+    Welcome, {{ user.username }}
+</h1>
+
+<h2>My Stories</h2>
+
+{% if stories %}
+
+    {% for story in stories %}
+
+        <div class="story-card">
+
+            <h3>
+                <a href="/story/{{ story.id }}">
+                    {{ story.title }}
+                </a>
+            </h3>
+
+            <p>
+                {{ story.content[:150] }}
+            </p>
+
+        </div>
+
+    {% endfor %}
+
+{% else %}
+
+    <p>
+        No stories yet.
+    </p>
+
+{% endif %}
+
+{% endblock %}

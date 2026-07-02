@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <title>Create Story</title>
 
     <link
         rel="stylesheet"
@@ -11,30 +11,31 @@
 
 <body>
 
-    <h1>Login</h1>
+    <h1>Create Story</h1>
 
     <form method="POST">
 
         <input
-            type="email"
-            name="email"
-            placeholder="Email"
+            type="text"
+            name="title"
+            placeholder="Story Title"
             required
         >
 
         <br><br>
 
-        <input
-            type="password"
-            name="password"
-            placeholder="Password"
+        <textarea
+            name="content"
+            rows="10"
+            cols="50"
+            placeholder="Write your story..."
             required
-        >
+        ></textarea>
 
         <br><br>
 
         <button type="submit">
-            Login
+            Save Story
         </button>
 
     </form>

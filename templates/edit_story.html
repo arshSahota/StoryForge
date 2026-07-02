@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <title>Edit Story</title>
 
     <link
         rel="stylesheet"
@@ -11,30 +11,30 @@
 
 <body>
 
-    <h1>Login</h1>
+    <h1>Edit Story</h1>
 
     <form method="POST">
 
         <input
-            type="email"
-            name="email"
-            placeholder="Email"
+            type="text"
+            name="title"
+            value="{{ story.title }}"
             required
         >
 
         <br><br>
 
-        <input
-            type="password"
-            name="password"
-            placeholder="Password"
+        <textarea
+            name="content"
+            rows="15"
+            cols="50"
             required
-        >
+        >{{ story.content }}</textarea>
 
         <br><br>
 
         <button type="submit">
-            Login
+            Save Changes
         </button>
 
     </form>

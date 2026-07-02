@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{ story.title }}</title>
+    <p>
+        Created:
+        {{ story.created_at }}
+    </p>
+
+    <p>
+        Updated:
+        {{ story.updated_at }}
+    </p>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <h1>{{ story.title }}</h1>
+
+    <p>{{ story.content }}</p>
+
+    <br>
+
+    <a href="/dashboard">
+        <button>Back</button>
+    </a>
+
+    <a href="/edit-story/{{ story.id }}">
+        <button>Edit</button>
+    </a>
+
+    <a href="/delete-story/{{ story.id }}">
+        <button>Delete</button>
+    </a>
+
+</body>
+
+</html>
