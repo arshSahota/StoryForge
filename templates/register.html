@@ -1,16 +1,18 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Register</title>
+{% extends "base.html" %}
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
-</head>
-<body>
+{% block title %}
+Register
+{% endblock %}
 
-    <h1>Create Account</h1>
+{% block content %}
+
+<div class="auth-container">
+
+    <h1>Create Account ✨</h1>
+
+    <p>
+        Join StoryForge and start creating stories.
+    </p>
 
     <form method="POST">
 
@@ -26,7 +28,7 @@
         <input
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="Email Address"
             required
         >
 
@@ -42,10 +44,20 @@
         <br><br>
 
         <button type="submit">
-            Register
+            Create Account
         </button>
 
     </form>
 
-</body>
-</html>
+    <br>
+
+    <p>
+        Already have an account?
+        <a href="/login">
+            Login Here
+        </a>
+    </p>
+
+</div>
+
+{% endblock %}

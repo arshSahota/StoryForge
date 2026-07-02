@@ -1,24 +1,25 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
+{% extends "base.html" %}
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
-</head>
+{% block title %}
+Login
+{% endblock %}
 
-<body>
+{% block content %}
 
-    <h1>Login</h1>
+<div class="auth-container">
+
+    <h1>Welcome Back 👋</h1>
+
+    <p>
+        Login to continue writing stories.
+    </p>
 
     <form method="POST">
 
         <input
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="Email Address"
             required
         >
 
@@ -39,5 +40,15 @@
 
     </form>
 
-</body>
-</html>
+    <br>
+
+    <p>
+        Don't have an account?
+        <a href="/register">
+            Register Here
+        </a>
+    </p>
+
+</div>
+
+{% endblock %}

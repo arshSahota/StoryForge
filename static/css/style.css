@@ -165,3 +165,33 @@ input {
     border: none;
     width: 300px;
 }
+.auth-container {
+
+    width: 450px;
+
+    margin: 60px auto;
+
+    background: #1e293b;
+
+    padding: 30px;
+
+    border-radius: 12px;
+
+    text-align: center;
+}
+
+.auth-container input {
+
+    width: 90%;
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 8px;
+}
+
+.auth-container button {
+
+    width: 95%;
+}

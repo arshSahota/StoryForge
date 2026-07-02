@@ -11,41 +11,77 @@ from flask_login import (
     current_user
 )
 
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import (
+    check_password_hash,
+    generate_password_hash
+)
 
+
+# ---------------- APP SETUP ----------------
 
 app = Flask(__name__)
 
-# ---------------- CONFIG ----------------
 app.config["SECRET_KEY"] = "super-secret-key"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 
 db.init_app(app)
 
-# ---------------- LOGIN ----------------
+
+# ---------------- LOGIN MANAGER SETUP ----------------
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
 
-# ---------------- HOME ----------------
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+# ---------------- HOME ROUTE ----------------
+
 @app.route("/")
 def home():
-    return render_template("home.html")
+
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard"))
+
+    return redirect(url_for("login"))
 
 
-# ---------------- REGISTER ----------------
+# ---------------- REGISTER ROUTE ----------------
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
+
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard"))
+
     if request.method == "POST":
 
         username = request.form["username"]
         email = request.form["email"]
         password = request.form["password"]
 
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            flash("Email already registered. Please login.", "error")
+        existing_email = User.query.filter_by(email=email).first()
+
+        if existing_email:
+            flash(
+                "An account with this email already exists. Please login.",
+                "error"
+            )
+
+            return redirect(url_for("login"))
+
+        existing_username = User.query.filter_by(username=username).first()
+
+        if existing_username:
+            flash(
+                "This username is already taken. Please choose another one.",
+                "error"
+            )
+
             return redirect(url_for("register"))
 
         hashed_password = generate_password_hash(password)
@@ -59,15 +95,24 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        flash("Account created successfully! Please login.", "success")
+        flash(
+            "Account created successfully! Please login.",
+            "success"
+        )
+
         return redirect(url_for("login"))
 
     return render_template("register.html")
 
 
-# ---------------- LOGIN ----------------
+# ---------------- LOGIN ROUTE ----------------
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
+
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard"))
+
     if request.method == "POST":
 
         email = request.form["email"]
@@ -76,20 +121,49 @@ def login():
         user = User.query.filter_by(email=email).first()
 
         if user and check_password_hash(user.password, password):
+
             login_user(user)
-            flash(f"Welcome back, {user.username}!", "success")
+
+            flash(
+                f"Welcome back, {user.username}!",
+                "success"
+            )
+
             return redirect(url_for("dashboard"))
 
-        flash("Invalid email or password.", "error")
+        flash(
+            "Invalid email or password.",
+            "error"
+        )
 
     return render_template("login.html")
 
 
-# ---------------- DASHBOARD ----------------
+# ---------------- LOGOUT ROUTE ----------------
+
+@app.route("/logout")
+@login_required
+def logout():
+
+    logout_user()
+
+    flash(
+        "You have been logged out successfully.",
+        "info"
+    )
+
+    return redirect(url_for("login"))
+
+
+# ---------------- DASHBOARD ROUTE ----------------
+
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    stories = Story.query.filter_by(user_id=current_user.id).all()
+
+    stories = Story.query.filter_by(
+        user_id=current_user.id
+    ).all()
 
     return render_template(
         "dashboard.html",
@@ -98,47 +172,61 @@ def dashboard():
     )
 
 
-# ---------------- LOGOUT ----------------
-@app.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    flash("You have been logged out.", "info")
-    return redirect(url_for("home"))
+# ---------------- CREATE STORY ROUTE ----------------
 
-
-# ---------------- CREATE STORY ----------------
 @app.route("/create-story", methods=["GET", "POST"])
 @login_required
 def create_story():
+
     if request.method == "POST":
 
+        title = request.form["title"]
+        content = request.form["content"]
+
         new_story = Story(
-            title=request.form["title"],
-            content=request.form["content"],
+            title=title,
+            content=content,
             user_id=current_user.id
         )
 
         db.session.add(new_story)
         db.session.commit()
 
-        flash("Story created successfully!", "success")
+        flash(
+            "Story created successfully!",
+            "success"
+        )
+
         return redirect(url_for("dashboard"))
 
     return render_template("create_story.html")
 
 
-# ---------------- STORY DETAIL ----------------
+# ---------------- STORY DETAIL ROUTE ----------------
+
 @app.route("/story/<int:story_id>")
 @login_required
 def story_detail(story_id):
 
     story = Story.query.get_or_404(story_id)
 
-    return render_template("story_detail.html", story=story)
+    if story.user_id != current_user.id:
+
+        flash(
+            "You do not have permission to view that story.",
+            "error"
+        )
+
+        return redirect(url_for("dashboard"))
+
+    return render_template(
+        "story_detail.html",
+        story=story
+    )
 
 
-# ---------------- EDIT STORY ----------------
+# ---------------- EDIT STORY ROUTE ----------------
+
 @app.route("/edit-story/<int:story_id>", methods=["GET", "POST"])
 @login_required
 def edit_story(story_id):
@@ -146,22 +234,41 @@ def edit_story(story_id):
     story = Story.query.get_or_404(story_id)
 
     if story.user_id != current_user.id:
-        flash("No permission.", "error")
+
+        flash(
+            "You do not have permission to edit that story.",
+            "error"
+        )
+
         return redirect(url_for("dashboard"))
 
     if request.method == "POST":
+
         story.title = request.form["title"]
         story.content = request.form["content"]
 
         db.session.commit()
 
-        flash("Story updated!", "success")
-        return redirect(url_for("story_detail", story_id=story.id))
+        flash(
+            "Story updated successfully!",
+            "success"
+        )
 
-    return render_template("edit_story.html", story=story)
+        return redirect(
+            url_for(
+                "story_detail",
+                story_id=story.id
+            )
+        )
+
+    return render_template(
+        "edit_story.html",
+        story=story
+    )
 
 
-# ---------------- DELETE STORY ----------------
+# ---------------- DELETE STORY ROUTE ----------------
+
 @app.route("/delete-story/<int:story_id>")
 @login_required
 def delete_story(story_id):
@@ -169,22 +276,34 @@ def delete_story(story_id):
     story = Story.query.get_or_404(story_id)
 
     if story.user_id != current_user.id:
-        flash("No permission.", "error")
+
+        flash(
+            "You do not have permission to delete that story.",
+            "error"
+        )
+
         return redirect(url_for("dashboard"))
 
     db.session.delete(story)
     db.session.commit()
 
-    flash("Story deleted!", "success")
+    flash(
+        "Story deleted successfully!",
+        "success"
+    )
+
     return redirect(url_for("dashboard"))
 
 
-# ---------------- PROFILE ----------------
+# ---------------- PROFILE ROUTE ----------------
+
 @app.route("/profile")
 @login_required
 def profile():
 
-    story_count = Story.query.filter_by(user_id=current_user.id).count()
+    story_count = Story.query.filter_by(
+        user_id=current_user.id
+    ).count()
 
     return render_template(
         "profile.html",
@@ -193,22 +312,30 @@ def profile():
     )
 
 
-# ---------------- EDIT PROFILE ----------------
+# ---------------- EDIT PROFILE ROUTE ----------------
+
 @app.route("/edit-profile", methods=["GET", "POST"])
 @login_required
 def edit_profile():
 
     if request.method == "POST":
+
         current_user.bio = request.form["bio"]
+
         db.session.commit()
 
-        flash("Profile updated!", "success")
+        flash(
+            "Profile updated successfully!",
+            "success"
+        )
+
         return redirect(url_for("profile"))
 
     return render_template("edit_profile.html")
 
 
-# ---------------- STORY GENERATOR ----------------
+# ---------------- STORY GENERATOR ROUTE ----------------
+
 @app.route("/generate-story", methods=["GET", "POST"])
 @login_required
 def generate_story():
@@ -274,35 +401,39 @@ def generate_story():
     )
 
 
-# ---------------- SAVE GENERATED STORY ----------------
+# ---------------- SAVE GENERATED STORY ROUTE ----------------
+
 @app.route("/save-generated-story", methods=["POST"])
 @login_required
 def save_generated_story():
 
+    title = request.form["title"]
+    content = request.form["content"]
+
     new_story = Story(
-        title=request.form["title"],
-        content=request.form["content"],
+        title=title,
+        content=content,
         user_id=current_user.id
     )
 
     db.session.add(new_story)
     db.session.commit()
 
-    flash("Generated story saved successfully!", "success")
+    flash(
+        "Generated story saved successfully!",
+        "success"
+    )
+
     return redirect(url_for("dashboard"))
 
 
-# ---------------- USER LOADER ----------------
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+# ---------------- CREATE DATABASE TABLES ----------------
 
-
-# ---------------- DB INIT ----------------
 with app.app_context():
     db.create_all()
 
 
-# ---------------- RUN ----------------
+# ---------------- RUN APP ----------------
+
 if __name__ == "__main__":
     app.run(debug=True)
